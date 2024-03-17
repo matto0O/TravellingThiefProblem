@@ -6,6 +6,7 @@ public class Problem {
     private final String fileName;
     private City[] cities;
     private Knapsack knapsack;
+    private double minSpeed, maxSpeed;
     private final Optimizer strategy;
 
     public Problem(String fileName, Optimizer strategy) {
@@ -29,6 +30,10 @@ public class Problem {
                 } else if (!knapsackInitialized && line == 4) {
                     knapsack = new Knapsack(Integer.parseInt(data[1]));
                     knapsackInitialized = true;
+                } else if (knapsackInitialized && line == 5) {
+                    minSpeed = Double.parseDouble(data[1]);
+                } else if (knapsackInitialized && line == 6) {
+                    maxSpeed = Double.parseDouble(data[1]);
                 }
                 else if (citiesInitialized && line >= 10 && line < 10 + cities.length){
                     int cityIndex = Integer.parseInt(data[0]);
@@ -59,6 +64,6 @@ public class Problem {
     }
 
     public void solve(){
-        strategy.solve(cities, knapsack);
+        strategy.solve(cities, knapsack, minSpeed, maxSpeed);
     }
 }

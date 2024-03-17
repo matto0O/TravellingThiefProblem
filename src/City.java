@@ -26,6 +26,23 @@ public class City {
         return coordinateY;
     }
 
+    public ArrayList<Item> getItems() {
+        return items;
+    }
+
+    public Item getMostValuableItem(int maxWeight){
+        Item mostValuableItem = null;
+        for (Item item : items) {
+            if (item.getWeight() <= maxWeight) {
+                if(mostValuableItem == null || mostValuableItem.getProfit() < item.getProfit()) {
+                    mostValuableItem = item;
+                }
+            }
+        }
+        return mostValuableItem;
+
+    }
+
     public void addItem(@NotNull Item item) {
         items.add(item);
     }

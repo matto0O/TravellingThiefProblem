@@ -3,24 +3,38 @@ import java.util.Arrays;
 
 public class GreedyAlgorithm implements Optimizer{
     @Override
-    public void solve(City[] cities, Knapsack knapsack) {
+    public void solve(City[] cities, Knapsack knapsack, double minSpeed, double maxSpeed) {
         ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(cities));
 
         City currentCity = unvisitedCities.remove(0);
         cities[0] = currentCity;
+        Item bestItem = null;
+
 
         while (!unvisitedCities.isEmpty()) {
             City nextCity = unvisitedCities.get(0);
-            double minDistance = currentCity.distanceTo(nextCity);
+            double mitTime = Double.MAX_VALUE;
             for (City city : unvisitedCities) {
                 double potentialDistance = currentCity.distanceTo(city);
-                if (potentialDistance < minDistance) {
+                bestItem = city.getMostValuableItem(knapsack.getCapacity() - knapsack.getWeight());
+                int weight = bestItem == null ? 0 : bestItem.getWeight();
+
+                double potentialSpeed = maxSpeed - (maxSpeed - minSpeed) *
+                        ((double) (knapsack.getWeight() + weight) / knapsack.getCapacity());
+
+                double potentialTime = potentialDistance / potentialSpeed;
+
+                if (potentialTime < mitTime) {
                     nextCity = city;
-                    minDistance = potentialDistance;
+                    mitTime = potentialTime;
                 }
             }
+
             currentCity = nextCity;
             cities[cities.length - unvisitedCities.size()] = currentCity;
+            if(bestItem != null) {
+                knapsack.putItem(bestItem);
+            }
             unvisitedCities.remove(currentCity);
         }
 
