@@ -15,7 +15,7 @@ public class Knapsack {
 
     public void putItem(@NotNull Item item) {
         if (weight + item.getWeight() > capacity) {
-            throw new IllegalArgumentException("Item " + item + " is too heavy for this knapsack");
+            throw new IllegalArgumentException(item + " is too heavy for this knapsack (" + (capacity - weight) + ")");
         }
         weight += item.getWeight();
         items.add(item);

@@ -30,6 +30,16 @@ public class City {
         return items;
     }
 
+    public ArrayList<Item> getItemsLighterThan(int maxWeight) {
+        ArrayList<Item> itemsLighterThan = new ArrayList<>();
+        for (Item item : items) {
+            if (item.getWeight() <= maxWeight) {
+                itemsLighterThan.add(item);
+            }
+        }
+        return itemsLighterThan;
+    }
+
     public Item getMostValuableItem(int maxWeight){
         Item mostValuableItem = null;
         for (Item item : items) {
@@ -40,7 +50,6 @@ public class City {
             }
         }
         return mostValuableItem;
-
     }
 
     public void addItem(@NotNull Item item) {

@@ -7,7 +7,7 @@ public class Problem {
     private City[] cities;
     private double[][] distanceMatrix;
     private Knapsack knapsack;
-    private double minSpeed, maxSpeed;
+    private double minSpeed, maxSpeed, coefficient;
     private final Optimizer strategy;
 
     public Problem(String fileName, Optimizer strategy) {
@@ -37,9 +37,11 @@ public class Problem {
             minSpeed = Double.parseDouble(line5[1]);
 
             String[] line6 = myReader.nextLine().split("\t");
-            minSpeed = Double.parseDouble(line6[1]);
+            maxSpeed = Double.parseDouble(line6[1]);
 
-            myReader.nextLine();
+            String[] line7 = myReader.nextLine().split("\t");
+            coefficient = Double.parseDouble(line7[1]);
+
             myReader.nextLine();
             myReader.nextLine();
 
@@ -72,14 +74,12 @@ public class Problem {
         distanceMatrix = new double[cities.length][cities.length];
         for (int i = 0; i < cities.length; i++) {
             for (int j = 0; j < cities.length; j++) {
-                if(!cities[i].equals(cities[j]))
-                    distanceMatrix[i][j] = -1;
-                distanceMatrix[i][j] = cities[i].distanceTo(cities[j]);
+                distanceMatrix[i][j] = cities[i].distanceTo(cities[j]) * coefficient;
             }
         }
     }
 
-    public void print(){
+    public void printCities(){
         System.out.println("Cities:");
         for (City city : cities) {
             System.out.println(city);
@@ -87,6 +87,6 @@ public class Problem {
     }
 
     public void solve(){
-        strategy.solve(cities, knapsack, minSpeed, maxSpeed, distanceMatrix);
+        strategy.solve(cities, knapsack, minSpeed, maxSpeed, distanceMatrix, 100);
     }
 }

@@ -1,8 +1,8 @@
 public class Main {
     public static void main(String[] args) {
         Problem problem = new Problem(
-                "src/problems/berlin52_n51_uncorr_01.ttp",
-                new GreedyAlgorithm());
+                "src/problems/simple4_n6_02.ttp",
+                new RandomSearch());
 
         long startTime = System.nanoTime();
         problem.solve();
