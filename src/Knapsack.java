@@ -1,4 +1,4 @@
-import org.jetbrains.annotations.NotNull;
+//import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ public class Knapsack {
         weight = 0;
     }
 
-    public void putItem(@NotNull Item item) {
+    public void putItem(Item item) {
         if (weight + item.getWeight() > capacity) {
             throw new IllegalArgumentException(item + " is too heavy for this knapsack (" + (capacity - weight) + ")");
         }

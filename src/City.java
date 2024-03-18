@@ -1,4 +1,4 @@
-import org.jetbrains.annotations.NotNull;
+//import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -52,11 +52,11 @@ public class City {
         return mostValuableItem;
     }
 
-    public void addItem(@NotNull Item item) {
+    public void addItem(Item item) {
         items.add(item);
     }
 
-    public double distanceTo(@NotNull City city) {
+    public double distanceTo(City city) {
         double xDistance = Math.abs(getCoordinateX() - city.getCoordinateX());
         double yDistance = Math.abs(getCoordinateY() - city.getCoordinateY());
         return Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));

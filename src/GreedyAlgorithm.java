@@ -3,16 +3,17 @@ import java.util.Arrays;
 
 public class GreedyAlgorithm implements Optimizer{
     @Override
-    public Solution solve(City[] cities, Knapsack knapsack, double minSpeed,
+    public Solution solve(City[] cities, int knapsackSize, double minSpeed,
                           double maxSpeed, double[][] distanceMatrix, int iterations) {
         ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(cities));
+        Knapsack knapsack = new Knapsack(knapsackSize);
+        City currentCity = unvisitedCities.removeFirst();
+        Solution solution = new Solution(knapsack, currentCity);
 
-        City currentCity = unvisitedCities.remove(0);
-        cities[0] = currentCity;
         Item bestItem = null;
 
         while (!unvisitedCities.isEmpty()) {
-            City nextCity = unvisitedCities.get(0);
+            City nextCity = unvisitedCities.getFirst();
             double mitTime = Double.MAX_VALUE;
             for (City city : unvisitedCities) {
                 double potentialDistance = distanceMatrix[currentCity.getIndex()-1][city.getIndex()-1];
@@ -30,13 +31,11 @@ public class GreedyAlgorithm implements Optimizer{
                 }
             }
 
+            solution.appendSolution(nextCity, mitTime, bestItem);
             currentCity = nextCity;
-            cities[cities.length - unvisitedCities.size()] = currentCity;
-            if(bestItem != null) {
-                knapsack.putItem(bestItem);
-            }
             unvisitedCities.remove(currentCity);
         }
-        return null;
+
+        return solution;
     }
 }
