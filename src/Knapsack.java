@@ -32,4 +32,10 @@ public class Knapsack {
     public ArrayList<Item> getItems() {
         return items;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        Knapsack other = (Knapsack) obj;
+        return this.getItems().equals(other.getItems());
+    }
 }
