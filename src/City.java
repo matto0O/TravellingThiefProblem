@@ -66,4 +66,11 @@ public class City {
     public String toString() {
         return "City nr " + index + " (" + coordinateX + ", " + coordinateY + "), itemCount = " + items.size();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof City)
+            return this.index == ((City)obj).index;
+        return false;
+    }
 }

@@ -57,24 +57,23 @@ public class EvolutionaryAlgorithm implements Optimizer{
         Solution offspring = new Solution(offspringKnapsack, currentOffspringCity);
 
         int citiesLen = parent1.getCities().size();
-        int citySubsequenceStartIndex = random.nextInt(citiesLen - 2) + 1;
+        int citySubsequenceStartIndex = random.nextInt(citiesLen - 1) + 1;
         int citySubsequenceEndIndex = random.nextInt(citiesLen - citySubsequenceStartIndex) + citySubsequenceStartIndex;
         System.out.println(citySubsequenceStartIndex);
         System.out.println(citySubsequenceEndIndex);
         List<City> cities = parent1.getCities()
-                .subList(citySubsequenceStartIndex, citySubsequenceEndIndex);
+                .subList(citySubsequenceStartIndex, citySubsequenceEndIndex+1);
 
-        int toSkipIndex = 1;
+        ArrayList<City> p2cities = new ArrayList<>(parent2.getCities());
+        p2cities.removeFirst();
+        p2cities.removeAll(cities);
+
         while(offspring.getCities().size() < citySubsequenceStartIndex)
         {
             City city;
-            while(true){
-                city = parent2.getCities().get(toSkipIndex);
-                if(cities.contains(city)){
-                    toSkipIndex++;
-                }
-                else break;
-            }
+            do {
+                city = p2cities.removeFirst();
+            } while (cities.contains(city));
 
             Item selectedItem = parent2.itemStolenFromCity(city);
 
@@ -91,7 +90,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
             );
         }
 
-        for(int i=citySubsequenceStartIndex; i<citySubsequenceEndIndex; i++){
+        for(int i=citySubsequenceStartIndex; i<=citySubsequenceEndIndex; i++){
             City city = parent1.getCities().get(i);
             Item selectedItem = parent1.itemStolenFromCity(city);
 
@@ -108,16 +107,9 @@ public class EvolutionaryAlgorithm implements Optimizer{
             );
         }
 
-        while(offspring.getCities().size() < citiesLen)
+        while(!p2cities.isEmpty())
         {
-            City city;
-            while(true){
-                city = parent2.getCities().get(toSkipIndex);
-                if(cities.contains(city)){
-                    toSkipIndex++;
-                }
-                else break;
-            }
+            City city = p2cities.removeFirst();
 
             Item selectedItem = parent2.itemStolenFromCity(city);
 

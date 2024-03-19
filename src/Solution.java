@@ -24,8 +24,10 @@ public class Solution implements Comparable<Solution>{
 
     public void appendSolution(City city, double time, Item item) {
         if(item != null) {
-            knapsack.putItem(item);
-            fitness += item.getProfit();
+            try {
+                knapsack.putItem(item);
+                fitness += item.getProfit();
+            } catch (IllegalArgumentException ignored) {}
         }
         cities.add(city);
         fitness -= time;
