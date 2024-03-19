@@ -22,7 +22,8 @@ public class RandomSearch implements Optimizer{
                 City nextCity = unvisitedCities.get(random.nextInt(unvisitedCities.size()));
                 int maxWeight = knapsack.getCapacity() - knapsack.getWeight();
                 ArrayList<Item> items = nextCity.getItemsLighterThan(maxWeight);
-                Item selectedItem = !items.isEmpty() ? items.get(random.nextInt(items.size())) : null;
+                int randomIndex = random.nextInt(items.size() + 1);
+                Item selectedItem = items.isEmpty() || randomIndex == items.size() ? null : items.get(randomIndex);
 
                 double time;
 
@@ -45,9 +46,6 @@ public class RandomSearch implements Optimizer{
             if (bestSolution == null || bestSolution.getFitness() < solution.getFitness()){
                 bestSolution = solution;
             }
-
-//            System.out.println("Iteration " + i + " - Best solution: " + bestSolution.getFitness() +
-//                    " - Current solution: " + solution.getFitness());
         }
 
         return bestSolution;

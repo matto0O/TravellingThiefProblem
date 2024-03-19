@@ -87,7 +87,7 @@ public class Problem {
         }
     }
 
-    public Solution solve(){
-        return strategy.solve(cities, knapsackSize, minSpeed, maxSpeed, distanceMatrix, 100);
+    public Solution solve(int iterations){
+        return strategy.solve(cities, knapsackSize, minSpeed, maxSpeed, distanceMatrix, iterations);
     }
 }

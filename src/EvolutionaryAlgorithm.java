@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +32,6 @@ public class EvolutionaryAlgorithm implements Optimizer{
         }
 
         contestants.sort(new FitnessComparator());
-        System.out.println(contestants.getLast());
 
         return contestants.getLast();
     }
@@ -46,10 +44,13 @@ public class EvolutionaryAlgorithm implements Optimizer{
                 knapsack.getCapacity());
     }
 
-    private Solution crossover(ArrayList<Solution> population, double minSpeed,
-                               double maxSpeed, double[][] distanceMatrix){
+    private Solution crossover(double minSpeed, double maxSpeed, double[][] distanceMatrix){
         Solution parent1 = tournament();
         Solution parent2 = tournament();
+
+        if(random.nextDouble() > crossoverChance){
+            return null;
+        }
 
         City currentOffspringCity = parent1.getCities().getFirst();
         Knapsack offspringKnapsack = new Knapsack(parent1.getKnapsack().getCapacity());
@@ -87,6 +88,8 @@ public class EvolutionaryAlgorithm implements Optimizer{
                     ),
                     selectedItem
             );
+
+            currentOffspringCity = city;
         }
 
         for(int i=citySubsequenceStartIndex; i<=citySubsequenceEndIndex; i++){
@@ -104,6 +107,8 @@ public class EvolutionaryAlgorithm implements Optimizer{
                     ),
                     selectedItem
             );
+
+            currentOffspringCity = city;
         }
 
         while(!p2cities.isEmpty())
@@ -123,30 +128,30 @@ public class EvolutionaryAlgorithm implements Optimizer{
                     ),
                     selectedItem
             );
+            currentOffspringCity = city;
         }
-//        for (int i=1; i<citiesLen; i++){
-//            Solution selectedParent = random.nextDouble() > crossoverChance ? parent1 : parent2;
-//
-//            City city = selectedParent.getCities().get(i);
-//            Item selectedItem = selectedParent.itemStolenFromCity(city);
-//            offspring.appendSolution(
-//                    city,
-//                    calculateTime(
-//                            minSpeed,
-//                            maxSpeed,
-//                            distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-//                            offspringKnapsack,
-//                            selectedItem
-//                    ),
-//                    selectedItem
-//            );
-//        }
 
         return offspring;
     }
 
-    private Solution mutation(Solution solution){
-        return null;
+    private Solution mutation(Solution solution, double minSpeed, double maxSpeed, double[][] distanceMatrix){
+        // INVERSE MUTATION
+
+        if(random.nextDouble() > mutationChance){
+            return solution;
+        }
+
+        Solution offspring = solution.copy();
+
+        int citiesLen = solution.getCities().size();
+        int citySubsequenceStartIndex = random.nextInt(citiesLen);
+        int citySubsequenceEndIndex = random.nextInt(citiesLen - citySubsequenceStartIndex) + citySubsequenceStartIndex + 1;
+
+        System.out.println("Before mutation: " + offspring);
+        offspring.invert(citySubsequenceStartIndex, citySubsequenceEndIndex);       //TODO proper logs, but working
+        System.out.println("After mutation: " + offspring);
+
+        return offspring;
     }
 
     @Override
@@ -158,11 +163,25 @@ public class EvolutionaryAlgorithm implements Optimizer{
             population.add(rs.solve(cities, knapsackSize, minSpeed, maxSpeed, distanceMatrix, 1));
         }
 
-        Solution bestSolution = null;
-//        for (int i=0; i<iterations; i++){
-            bestSolution = crossover(population, minSpeed, maxSpeed, distanceMatrix);
-//        }
-//        bestSolution = tournament();
+        population.sort(new FitnessComparator());
+        Solution bestSolution = population.getLast();
+
+        for (int i=0; i<iterations; i++){
+            ArrayList<Solution> newPopulation = new ArrayList<>(populationSize);
+
+            while(newPopulation.size() < populationSize) {
+                Solution postCross = crossover(minSpeed, maxSpeed, distanceMatrix);
+                if (postCross != null) {
+                    postCross = mutation(postCross, minSpeed, maxSpeed, distanceMatrix);
+                    newPopulation.add(postCross);
+                }
+            }
+
+            population.clear();
+            population.addAll(newPopulation);
+            population.sort(new FitnessComparator());
+            bestSolution = population.getLast().getFitness() > bestSolution.getFitness() ? population.getLast() : bestSolution;
+        }
         return bestSolution;
     }
 }
