@@ -24,10 +24,8 @@ public class Solution implements Comparable<Solution>{
 
     public void appendSolution(City city, double time, Item item) {
         if(item != null) {
-            try {
-                knapsack.putItem(item);
-                fitness += item.getProfit();
-            } catch (IllegalArgumentException ignored) {}
+            knapsack.putItem(item);
+            fitness += item.getProfit();
         }
         cities.add(city);
         fitness -= time;
@@ -68,7 +66,7 @@ public class Solution implements Comparable<Solution>{
 
     @Override
     public boolean equals(Object obj) {
-        Solution other = (Solution)obj;
+        if(!(obj instanceof Solution other)) return false;
         return this.cities.equals(other.cities) && this.knapsack.equals(other.knapsack);
     }
 }

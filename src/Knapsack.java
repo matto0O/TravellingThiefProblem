@@ -35,7 +35,7 @@ public class Knapsack {
 
     @Override
     public boolean equals(Object obj) {
-        Knapsack other = (Knapsack) obj;
+        if(!(obj instanceof Knapsack other)) return false;
         return this.getItems().equals(other.getItems());
     }
 }

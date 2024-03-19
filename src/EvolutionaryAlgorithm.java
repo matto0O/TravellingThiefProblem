@@ -59,8 +59,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
         int citiesLen = parent1.getCities().size();
         int citySubsequenceStartIndex = random.nextInt(citiesLen - 1) + 1;
         int citySubsequenceEndIndex = random.nextInt(citiesLen - citySubsequenceStartIndex) + citySubsequenceStartIndex;
-        System.out.println(citySubsequenceStartIndex);
-        System.out.println(citySubsequenceEndIndex);
+
         List<City> cities = parent1.getCities()
                 .subList(citySubsequenceStartIndex, citySubsequenceEndIndex+1);
 
