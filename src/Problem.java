@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Problem {
@@ -11,10 +12,12 @@ public class Problem {
     static int knapsackSize;
     static double minSpeed, maxSpeed, coefficient;
     static Optimizer strategy;
+    static Random random;
 
     private Problem(String fileName, Optimizer strategy) {
         Problem.fileName = fileName;
         Problem.strategy = strategy;
+        random = new Random();
         loadProblem();
         calculateDistanceMatrix();
     }
