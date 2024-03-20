@@ -18,9 +18,8 @@ public class SimulatedAnnealing implements Optimizer{
     }
 
     private boolean acceptanceCriteria(double rivalFitness, double benchmarkFitness){
-        double exp = Math.exp(-(rivalFitness - benchmarkFitness) / temperature);
+        double exp = Math.exp((rivalFitness - benchmarkFitness) / temperature);
         double random = Math.random();
-        System.out.println("Exp: " + exp + " Random: " + random);
         return exp >= random;
     }
 
@@ -35,15 +34,13 @@ public class SimulatedAnnealing implements Optimizer{
             double benchmarkFitness = benchmarkSolution.getFitness();
             double rivalFitness = rivalSolution.getFitness();
 
-            System.out.println("Benchmark fitness: " + benchmarkFitness);
-            System.out.println("Rival fitness: " + rivalFitness);
-
             if(benchmarkFitness < rivalFitness){
                 benchmarkSolution = rivalSolution;
                 if (bestSolution.getFitness() < benchmarkFitness) bestSolution = benchmarkSolution;
                 rivalSolution = Operators.mutation(benchmarkSolution, mutationChance);
             }
             else if (acceptanceCriteria(rivalFitness, benchmarkFitness)){
+                benchmarkSolution = rivalSolution;
                 rivalSolution = Operators.mutation(rivalSolution, mutationChance);
             }
             else{
