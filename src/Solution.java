@@ -38,28 +38,35 @@ public class Solution implements Comparable<Solution>{
 
     public Knapsack getKnapsack() {return knapsack;}
 
-    public boolean calculateFitness(double minSpeed, double maxSpeed, double[][] distanceMatrix){
+    public boolean calculateFitness(){
         double newFitness = 0.0;
         logs = new ArrayList<>();
+        Knapsack tempKnapsack = new Knapsack(knapsack.getCapacity());
 
         City previousCity = cities.getFirst();
-        logs.add("First city - " + previousCity.getIndex());
-        Knapsack tempKnapsack = new Knapsack(knapsack.getCapacity());
+        Item itemStolen = itemStolenFromCity(previousCity);
+        String log = "First city - " + previousCity.getIndex();
+        if(itemStolen != null) {
+            try {
+                tempKnapsack.putItem(itemStolen);
+                newFitness += itemStolen.getProfit();
+                log += " Stolen " + itemStolen;
+            } catch (IllegalArgumentException ignored){}
+        }
+        logs.add(log);
         double globalTime = 0.0;
         for (City city: cities){
-            double distance = distanceMatrix[previousCity.getIndex() - 1][city.getIndex() - 1];
+            double distance = Problem.distanceBetween(previousCity, city);
             if (distance == 0.0) continue;
-            double speed = distance / (maxSpeed - (maxSpeed - minSpeed) *
-                    knapsack.getWeight() / knapsack.getCapacity());
 
-            double localtime = speed / distance;
+            double localtime = Problem.timeBetween(previousCity, city, tempKnapsack);
 
             newFitness -= localtime;
             globalTime += localtime;
 
-            String log = "\nCity nr " + city.getIndex();
+            log = "\nCity nr " + city.getIndex();
 
-            Item itemStolen = itemStolenFromCity(city);
+            itemStolen = itemStolenFromCity(city);
             if(itemStolen != null) {
                 try {
                     tempKnapsack.putItem(itemStolen);
@@ -67,7 +74,7 @@ public class Solution implements Comparable<Solution>{
                     log += " Stolen " + itemStolen;
                 } catch (IllegalArgumentException ignored){}
             }
-            log += " knapsack - " + knapsack.getWeight() + "/" + knapsack.getCapacity();
+            log += " knapsack - " + tempKnapsack.getWeight() + "/" + knapsack.getCapacity();
             logs.add(log);
             previousCity = city;
         }
@@ -78,16 +85,13 @@ public class Solution implements Comparable<Solution>{
         return equal;
     }
 
-    public void appendSolution(City city, double time, Item item) {
+    public void appendSolution(City city, Item item) {
         if(item != null) {
             try{
                 knapsack.putItem(item);
-                fitness += item.getProfit();
             } catch (IllegalArgumentException ignored){}
         }
         cities.add(city);
-        fitness -= time;
-        this.time += time;
     }
 
     public Item itemStolenFromCity(City city){

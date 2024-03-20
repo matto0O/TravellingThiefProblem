@@ -25,27 +25,20 @@ public class RandomSearch implements Optimizer{
                 int randomIndex = random.nextInt(items.size() + 1);
                 Item selectedItem = items.isEmpty() || randomIndex == items.size() ? null : items.get(randomIndex);
 
-                double time;
-
-                if(selectedItem != null) {
-                    time = distanceMatrix[currentCity.getIndex()-1][nextCity.getIndex()-1] /
-                            (maxSpeed - (maxSpeed - minSpeed) * (knapsack.getWeight() + selectedItem.getWeight()) /
-                                    knapsack.getCapacity());
-                } else {
-                    time = distanceMatrix[currentCity.getIndex()-1][nextCity.getIndex()-1] /
-                            (maxSpeed - (maxSpeed - minSpeed) * (knapsack.getWeight()) /
-                                    knapsack.getCapacity());
-                }
-
-                solution.appendSolution(nextCity, time, selectedItem);
+                solution.appendSolution(nextCity, selectedItem);
 
                 currentCity = nextCity;
                 unvisitedCities.remove(currentCity);
             }
 
+            solution.calculateFitness();
+
             if (bestSolution == null || bestSolution.getFitness() < solution.getFitness()){
                 bestSolution = solution;
             }
+        }
+        if (bestSolution != null) {
+            bestSolution.calculateFitness();
         }
 
         return bestSolution;

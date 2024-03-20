@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class EvolutionaryAlgorithm implements Optimizer{
@@ -37,13 +36,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
         return contestants.getLast();
     }
 
-    private double calculateTime(double minSpeed, double maxSpeed, double distance, Knapsack knapsack){
-
-        return distance / (maxSpeed - (maxSpeed - minSpeed) *
-                        knapsack.getWeight() / knapsack.getCapacity());
-    }
-
-    private Solution crossover(double minSpeed, double maxSpeed, double[][] distanceMatrix){
+    private Solution crossover(){
         Solution parent1 = tournament();
         Solution parent2 = tournament();
 
@@ -51,10 +44,9 @@ public class EvolutionaryAlgorithm implements Optimizer{
             return null;
         }
 
-        City currentOffspringCity = null;
         Knapsack offspringKnapsack = new Knapsack(parent1.getKnapsack().getCapacity());
 
-        Solution offspring = new Solution(offspringKnapsack, currentOffspringCity);
+        Solution offspring = new Solution(offspringKnapsack, null);
 
         int citiesLen = parent1.getCities().size();
         int citySubsequenceStartIndex = random.nextInt(citiesLen - 1) + 1;
@@ -75,21 +67,10 @@ public class EvolutionaryAlgorithm implements Optimizer{
 
             Item selectedItem = parent2.itemStolenFromCity(city);
 
-            double distance = currentOffspringCity == null ? 0.0 :
-                    distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1];
-
             offspring.appendSolution(
                     city,
-                    calculateTime(
-                            minSpeed,
-                            maxSpeed,
-                            distance,
-                            offspringKnapsack
-                    ),
                     selectedItem
             );
-
-            currentOffspringCity = city;
         }
 
         for(int i=citySubsequenceStartIndex; i<=citySubsequenceEndIndex; i++){
@@ -98,16 +79,8 @@ public class EvolutionaryAlgorithm implements Optimizer{
 
             offspring.appendSolution(
                     city,
-                    calculateTime(
-                            minSpeed,
-                            maxSpeed,
-                            distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-                            offspringKnapsack
-                    ),
                     selectedItem
             );
-
-            currentOffspringCity = city;
         }
 
         while(!p2cities.isEmpty())
@@ -118,21 +91,14 @@ public class EvolutionaryAlgorithm implements Optimizer{
 
             offspring.appendSolution(
                     city,
-                    calculateTime(
-                            minSpeed,
-                            maxSpeed,
-                            distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-                            offspringKnapsack
-                    ),
                     selectedItem
             );
-            currentOffspringCity = city;
         }
 
         return offspring;
     }
 
-    private Solution mutation(Solution solution, double minSpeed, double maxSpeed, double[][] distanceMatrix){
+    private Solution mutation(Solution solution){
         // INVERSE MUTATION
 
         if(random.nextDouble() > mutationChance){
@@ -166,10 +132,10 @@ public class EvolutionaryAlgorithm implements Optimizer{
             ArrayList<Solution> newPopulation = new ArrayList<>(populationSize);
 
             while(newPopulation.size() < populationSize) {
-                Solution postCross = crossover(minSpeed, maxSpeed, distanceMatrix);
+                Solution postCross = crossover();
                 if (postCross != null) {
-                    postCross = mutation(postCross, minSpeed, maxSpeed, distanceMatrix);
-                    postCross.calculateFitness(minSpeed, maxSpeed, distanceMatrix);
+                    postCross = mutation(postCross);
+                    postCross.calculateFitness();
                     newPopulation.add(postCross);
                 }
             }

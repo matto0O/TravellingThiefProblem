@@ -3,18 +3,40 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Problem {
-    private final String fileName;
-    private City[] cities;
-    private double[][] distanceMatrix;
-    private int knapsackSize;
-    private double minSpeed, maxSpeed, coefficient;
-    private final Optimizer strategy;
+    private static Problem instance = null;
 
-    public Problem(String fileName, Optimizer strategy) {
-        this.fileName = fileName;
-        this.strategy = strategy;
+    static String fileName;
+    static City[] cities;
+    static double[][] distanceMatrix;
+    static int knapsackSize;
+    static double minSpeed, maxSpeed, coefficient;
+    static Optimizer strategy;
+
+    private Problem(String fileName, Optimizer strategy) {
+        Problem.fileName = fileName;
+        Problem.strategy = strategy;
         loadProblem();
         calculateDistanceMatrix();
+    }
+
+    public static synchronized Problem setupInstance(String fileName, Optimizer strategy) {
+        instance = new Problem(fileName, strategy);
+        return instance;
+    }
+
+    public static synchronized Problem getInstance() {
+        return instance;
+    }
+
+    public static synchronized double distanceBetween(City city1, City city2) {
+        return distanceMatrix[city1.getIndex() - 1][city2.getIndex() - 1];
+    }
+
+    public static synchronized double timeBetween(City city1, City city2, Knapsack knapsack) {
+        double distance = distanceBetween(city1, city2);
+
+        double speed = maxSpeed - ((double) knapsack.getWeight() / knapsack.getCapacity() * (maxSpeed - minSpeed));
+        return distance / speed;
     }
 
     private void loadProblem(){

@@ -16,14 +16,9 @@ public class GreedyAlgorithm implements Optimizer{
             City nextCity = unvisitedCities.getFirst();
             double mitTime = Double.MAX_VALUE;
             for (City city : unvisitedCities) {
-                double potentialDistance = distanceMatrix[currentCity.getIndex()-1][city.getIndex()-1];
                 bestItem = city.getMostValuableItem(knapsack.getCapacity() - knapsack.getWeight());
-                int weight = bestItem == null ? 0 : bestItem.getWeight();
 
-                double potentialSpeed = maxSpeed - (maxSpeed - minSpeed) *
-                        ((double) (knapsack.getWeight() + weight) / knapsack.getCapacity());
-
-                double potentialTime = potentialDistance / potentialSpeed;
+                double potentialTime = Problem.timeBetween(currentCity, city, knapsack);
 
                 if (potentialTime < mitTime) {
                     nextCity = city;
@@ -31,11 +26,11 @@ public class GreedyAlgorithm implements Optimizer{
                 }
             }
 
-            solution.appendSolution(nextCity, mitTime, bestItem);
+            solution.appendSolution(nextCity, bestItem);
             currentCity = nextCity;
             unvisitedCities.remove(currentCity);
         }
-
+        solution.calculateFitness();
         return solution;
     }
 }

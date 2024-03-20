@@ -1,12 +1,11 @@
 public class Main {
     public static void main(String[] args) {
-        Problem problem = new Problem(
+        Problem problem = Problem.setupInstance(
                 "src/problems/berlin52_n51_uncorr-similar-weights_01.ttp",
 //                "src/problems/simple4_n6_02.ttp",
-                new EvolutionaryAlgorithm(1000, 10,
-                        0.7, 0.05));
+//                new EvolutionaryAlgorithm(1000, 10,0.7, 0.05));
 //                new GreedyAlgorithm());
-//                new RandomSearch());
+                new RandomSearch());
 
         long startTime = System.nanoTime();
         Solution solution = problem.solve(1000);
