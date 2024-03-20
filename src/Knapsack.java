@@ -13,6 +13,13 @@ public class Knapsack {
         weight = 0;
     }
 
+    public Knapsack copy() {
+        Knapsack copy = new Knapsack(capacity);
+        copy.weight = weight;
+        copy.items.addAll(items);
+        return copy;
+    }
+
     public void putItem(Item item) {
         if (weight + item.getWeight() > capacity) {
             throw new IllegalArgumentException(item + " is too heavy for this knapsack (" + (capacity - weight) + ")");
@@ -31,5 +38,11 @@ public class Knapsack {
 
     public ArrayList<Item> getItems() {
         return items;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Knapsack other)) return false;
+        return this.getItems().equals(other.getItems());
     }
 }

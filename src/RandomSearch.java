@@ -3,18 +3,23 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class RandomSearch implements Optimizer{
+    private final int iterations;
+
+    public RandomSearch(int iterations){
+        this.iterations = iterations;
+    }
+
     @Override
-    public Solution solve(City[] cities, int knapsackSize, double minSpeed,
-                          double maxSpeed, double[][] distanceMatrix, int iterations) {
+    public Solution solve() {
 
         Random random = new Random();
         Solution bestSolution = null;
 
         for (int i=0; i<iterations; i++){
-            Knapsack knapsack = new Knapsack(knapsackSize);
-            ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(cities));
+            Knapsack knapsack = new Knapsack(Problem.knapsackSize);
+            ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(Problem.cities));
 
-            City currentCity = unvisitedCities.removeFirst();
+            City currentCity = unvisitedCities.remove(random.nextInt(unvisitedCities.size()));
 
             Solution solution = new Solution(knapsack, currentCity);
 
@@ -22,32 +27,23 @@ public class RandomSearch implements Optimizer{
                 City nextCity = unvisitedCities.get(random.nextInt(unvisitedCities.size()));
                 int maxWeight = knapsack.getCapacity() - knapsack.getWeight();
                 ArrayList<Item> items = nextCity.getItemsLighterThan(maxWeight);
-                Item selectedItem = !items.isEmpty() ? items.get(random.nextInt(items.size())) : null;
+                int randomIndex = random.nextInt(items.size() + 1);
+                Item selectedItem = items.isEmpty() || randomIndex == items.size() ? null : items.get(randomIndex);
 
-                double time;
-
-                if(selectedItem != null) {
-                    time = distanceMatrix[currentCity.getIndex()-1][nextCity.getIndex()-1] /
-                            (maxSpeed - (maxSpeed - minSpeed) * (knapsack.getWeight() + selectedItem.getWeight()) /
-                                    knapsack.getCapacity());
-                } else {
-                    time = distanceMatrix[currentCity.getIndex()-1][nextCity.getIndex()-1] /
-                            (maxSpeed - (maxSpeed - minSpeed) * (knapsack.getWeight()) /
-                                    knapsack.getCapacity());
-                }
-
-                solution.appendSolution(nextCity, time, selectedItem);
+                solution.appendSolution(nextCity, selectedItem);
 
                 currentCity = nextCity;
                 unvisitedCities.remove(currentCity);
             }
 
+            solution.calculateFitness();
+
             if (bestSolution == null || bestSolution.getFitness() < solution.getFitness()){
                 bestSolution = solution;
             }
-
-//            System.out.println("Iteration " + i + " - Best solution: " + bestSolution.getFitness() +
-//                    " - Current solution: " + solution.getFitness());
+        }
+        if (bestSolution != null) {
+            bestSolution.calculateFitness();
         }
 
         return bestSolution;
