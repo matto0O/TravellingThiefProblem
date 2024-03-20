@@ -5,23 +5,21 @@ public class Solution implements Comparable<Solution>{
 
     private final Knapsack knapsack;
     private final ArrayList<City> cities;
-    private final ArrayList<String> logs;
+    private ArrayList<String> logs;
     private double fitness;
     private double time;
 
     public Solution(Knapsack knapsack, City startCity) {
         this.knapsack = knapsack;
         this.cities = new ArrayList<>();
-        this.cities.add(startCity);
-        this.logs = new ArrayList<>();
+        if(startCity != null)
+            this.cities.add(startCity);
     }
 
     public Solution copy(){
         Solution copy = new Solution(knapsack.copy(), null);
         copy.fitness = fitness;
-        copy.cities.clear();
         copy.cities.addAll(cities);
-        copy.logs.addAll(logs);
         return copy;
     }
 
@@ -40,22 +38,56 @@ public class Solution implements Comparable<Solution>{
 
     public Knapsack getKnapsack() {return knapsack;}
 
-    public void appendSolution(City city, double time, Item item) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(cities.size()).
-            append(". travel to city nr").append(city.getIndex()).append(" ");
+    public boolean calculateFitness(double minSpeed, double maxSpeed, double[][] distanceMatrix){
+        double newFitness = 0.0;
+        logs = new ArrayList<>();
 
+        City previousCity = cities.getFirst();
+        logs.add("First city - " + previousCity.getIndex());
+        Knapsack tempKnapsack = new Knapsack(knapsack.getCapacity());
+        double globalTime = 0.0;
+        for (City city: cities){
+            double distance = distanceMatrix[previousCity.getIndex() - 1][city.getIndex() - 1];
+            if (distance == 0.0) continue;
+            double speed = distance / (maxSpeed - (maxSpeed - minSpeed) *
+                    knapsack.getWeight() / knapsack.getCapacity());
+
+            double localtime = speed / distance;
+
+            newFitness -= localtime;
+            globalTime += localtime;
+
+            String log = "\nCity nr " + city.getIndex();
+
+            Item itemStolen = itemStolenFromCity(city);
+            if(itemStolen != null) {
+                try {
+                    tempKnapsack.putItem(itemStolen);
+                    newFitness += itemStolen.getProfit();
+                    log += " Stolen " + itemStolen;
+                } catch (IllegalArgumentException ignored){}
+            }
+            log += " knapsack - " + knapsack.getWeight() + "/" + knapsack.getCapacity();
+            logs.add(log);
+            previousCity = city;
+        }
+
+        boolean equal = newFitness == fitness && time == globalTime;
+        fitness = newFitness;
+        time = globalTime;
+        return equal;
+    }
+
+    public void appendSolution(City city, double time, Item item) {
         if(item != null) {
             try{
                 knapsack.putItem(item);
                 fitness += item.getProfit();
-                stringBuilder.append("Item stolen: ").append(item);
             } catch (IllegalArgumentException ignored){}
         }
         cities.add(city);
         fitness -= time;
         this.time += time;
-        logs.add(stringBuilder.toString());
     }
 
     public Item itemStolenFromCity(City city){
@@ -79,18 +111,15 @@ public class Solution implements Comparable<Solution>{
 
         sb.append("Fitness: ").append(fitness).append("\n");
 //        sb.append("Cities: ");
-//        for(int i = 0; i < cities.size() - 1; i++) {
-////            sb.append(cities.get(i).getIndex()).append(" -> ").append(cities.get(i + 1).getIndex()).append(" ")
-////                    .append(cities.get(i).distanceTo(cities.get(i + 1))).append("\n");
-//            sb.append(cities.get(i).getIndex()).append(", ");
+//        for(int i = 0; i < cities.size(); i++) {
+//            sb.append(cities.get(i).getIndex()).append(", weight - ").append(knapsack.getWeight()).append("\n");
 //        }
 //        sb.append(cities.getLast().getIndex()).append("\n");
-//        sb.append("Time: ").append(time).append("\n");
-//        sb.append("Knapsack weight ").append(knapsack.getWeight()).append("\n");
-
-        for (String log : logs) {
-            sb.append(log).append("\n");
+        for (String log: logs){
+            sb.append(log);
         }
+        sb.append("\nTime: ").append(time).append("\n");
+//        sb.append("Knapsack value ").append(knapsack.get()).append("\n");
 
         return sb.toString();
     }

@@ -14,7 +14,7 @@ public class RandomSearch implements Optimizer{
             Knapsack knapsack = new Knapsack(knapsackSize);
             ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(cities));
 
-            City currentCity = unvisitedCities.removeFirst();
+            City currentCity = unvisitedCities.remove(random.nextInt(unvisitedCities.size()));
 
             Solution solution = new Solution(knapsack, currentCity);
 

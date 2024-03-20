@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 public class EvolutionaryAlgorithm implements Optimizer{
@@ -36,12 +37,10 @@ public class EvolutionaryAlgorithm implements Optimizer{
         return contestants.getLast();
     }
 
-    private double calculateTime(double minSpeed, double maxSpeed, double distance, Knapsack knapsack, Item item){
-        int itemWeight = item == null ? 0 : item.getWeight();
+    private double calculateTime(double minSpeed, double maxSpeed, double distance, Knapsack knapsack){
 
-        return distance /
-                (maxSpeed - (maxSpeed - minSpeed) * (knapsack.getWeight() + itemWeight) /
-                knapsack.getCapacity());
+        return distance / (maxSpeed - (maxSpeed - minSpeed) *
+                        knapsack.getWeight() / knapsack.getCapacity());
     }
 
     private Solution crossover(double minSpeed, double maxSpeed, double[][] distanceMatrix){
@@ -52,7 +51,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
             return null;
         }
 
-        City currentOffspringCity = parent1.getCities().getFirst();
+        City currentOffspringCity = null;
         Knapsack offspringKnapsack = new Knapsack(parent1.getKnapsack().getCapacity());
 
         Solution offspring = new Solution(offspringKnapsack, currentOffspringCity);
@@ -65,7 +64,6 @@ public class EvolutionaryAlgorithm implements Optimizer{
                 .subList(citySubsequenceStartIndex, citySubsequenceEndIndex+1);
 
         ArrayList<City> p2cities = new ArrayList<>(parent2.getCities());
-        p2cities.removeFirst();
         p2cities.removeAll(cities);
 
         while(offspring.getCities().size() < citySubsequenceStartIndex)
@@ -77,14 +75,16 @@ public class EvolutionaryAlgorithm implements Optimizer{
 
             Item selectedItem = parent2.itemStolenFromCity(city);
 
+            double distance = currentOffspringCity == null ? 0.0 :
+                    distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1];
+
             offspring.appendSolution(
                     city,
                     calculateTime(
                             minSpeed,
                             maxSpeed,
-                            distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-                            offspringKnapsack,
-                            selectedItem
+                            distance,
+                            offspringKnapsack
                     ),
                     selectedItem
             );
@@ -102,8 +102,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
                             minSpeed,
                             maxSpeed,
                             distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-                            offspringKnapsack,
-                            selectedItem
+                            offspringKnapsack
                     ),
                     selectedItem
             );
@@ -123,8 +122,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
                             minSpeed,
                             maxSpeed,
                             distanceMatrix[city.getIndex()-1][currentOffspringCity.getIndex()-1],
-                            offspringKnapsack,
-                            selectedItem
+                            offspringKnapsack
                     ),
                     selectedItem
             );
@@ -147,9 +145,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
         int citySubsequenceStartIndex = random.nextInt(citiesLen);
         int citySubsequenceEndIndex = random.nextInt(citiesLen - citySubsequenceStartIndex) + citySubsequenceStartIndex + 1;
 
-        System.out.println("Before mutation: " + offspring);
-        offspring.invert(citySubsequenceStartIndex, citySubsequenceEndIndex);       //TODO proper logs, but working
-        System.out.println("After mutation: " + offspring);
+        offspring.invert(citySubsequenceStartIndex, citySubsequenceEndIndex);
 
         return offspring;
     }
@@ -173,6 +169,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
                 Solution postCross = crossover(minSpeed, maxSpeed, distanceMatrix);
                 if (postCross != null) {
                     postCross = mutation(postCross, minSpeed, maxSpeed, distanceMatrix);
+                    postCross.calculateFitness(minSpeed, maxSpeed, distanceMatrix);
                     newPopulation.add(postCross);
                 }
             }
