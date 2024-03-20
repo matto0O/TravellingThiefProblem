@@ -4,15 +4,16 @@ import java.util.Random;
 
 public class EvolutionaryAlgorithm implements Optimizer{
 
-    private final int populationSize, tournamentSize;
+    private final int populationSize, tournamentSize, iterations;
     private final double crossoverChance, mutationChance;
     private final ArrayList<Solution> population;
     private final Random random;
 
-    public EvolutionaryAlgorithm(int populationSize, int tournamentSize,
+    public EvolutionaryAlgorithm(int populationSize, int tournamentSize, int iterations,
                                  double crossoverChance, double mutationChance){
         this.populationSize = populationSize;
         this.tournamentSize = tournamentSize;
+        this.iterations = iterations;
         this.crossoverChance = crossoverChance;
         this.mutationChance = mutationChance;
         population = new ArrayList<>(populationSize);
@@ -117,12 +118,11 @@ public class EvolutionaryAlgorithm implements Optimizer{
     }
 
     @Override
-    public Solution solve(City[] cities, int knapsackSize, double minSpeed,
-                          double maxSpeed, double[][] distanceMatrix, int iterations) {
+    public Solution solve() {
 
-        RandomSearch rs = new RandomSearch();
+        RandomSearch rs = new RandomSearch(1);
         for (int i=0; i<populationSize; i++){
-            population.add(rs.solve(cities, knapsackSize, minSpeed, maxSpeed, distanceMatrix, 1));
+            population.add(rs.solve());
         }
 
         population.sort(new FitnessComparator());

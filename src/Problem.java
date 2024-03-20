@@ -109,7 +109,7 @@ public class Problem {
         }
     }
 
-    public Solution solve(int iterations){
-        return strategy.solve(cities, knapsackSize, minSpeed, maxSpeed, distanceMatrix, iterations);
+    public Solution solve(){
+        return strategy.solve();
     }
 }
