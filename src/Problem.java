@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Problem {
     private static Problem instance = null;
@@ -11,7 +13,7 @@ public class Problem {
     static double[][] distanceMatrix;
     static int knapsackSize;
     static double minSpeed, maxSpeed, coefficient;
-    static Optimizer strategy;
+    private static Optimizer strategy;
     static Random random;
 
     private Problem(String fileName, Optimizer strategy) {
@@ -20,6 +22,10 @@ public class Problem {
         random = new Random();
         loadProblem();
         calculateDistanceMatrix();
+    }
+
+    public static synchronized void changeStrategy(Optimizer newStrategy){
+        strategy = newStrategy;
     }
 
     public static synchronized Problem setupInstance(String fileName, Optimizer strategy) {
@@ -42,7 +48,7 @@ public class Problem {
         return distance / speed;
     }
 
-    private void loadProblem(){
+    private static void loadProblem(){
         try {
             File myObj = new File(fileName);
             Scanner myReader = new Scanner(myObj);
@@ -95,7 +101,7 @@ public class Problem {
         }
     }
 
-    private void calculateDistanceMatrix(){
+    private static void calculateDistanceMatrix(){
         distanceMatrix = new double[cities.length][cities.length];
         for (int i = 0; i < cities.length; i++) {
             for (int j = 0; j < cities.length; j++) {
@@ -105,14 +111,26 @@ public class Problem {
         }
     }
 
-    public void printCities(){
+    public static void printCities(){
         System.out.println("Cities:");
         for (City city : cities) {
             System.out.println(city);
         }
     }
 
-    public Solution solve(){
+    public static Solution solve(){
         return strategy.solve();
+    }
+
+    public static void saveToFile(String fileName, int runNumber){
+        strategy.saveToFile(fileName, runNumber);
+    }
+
+    public static String iterationDetails(){
+        return strategy.iterationDetails();
+    }
+
+    public static String iterationPreview(){
+        return strategy.iterationPreview();
     }
 }

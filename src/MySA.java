@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SimulatedAnnealing implements Optimizer{
+public class MySA implements Optimizer{
 
     // algorithm understanding based on the following source:
     // https://medium.com/@francis.allanah/travelling-salesman-problem-using-simulated-annealing-f547a71ab3c6
@@ -18,8 +18,8 @@ public class SimulatedAnnealing implements Optimizer{
     private final double mutationChance;
     private final ArrayList<Double> fitness;
 
-    public SimulatedAnnealing(double coolingRate, double startTemperature,
-                              double terminationTemperature, double mutationChance){
+    public MySA(double coolingRate, double startTemperature,
+                double terminationTemperature, double mutationChance){
         this.coolingRate = coolingRate;
         this.startTemperature = startTemperature;
         this.temperature = startTemperature;
@@ -51,6 +51,7 @@ public class SimulatedAnnealing implements Optimizer{
                 benchmarkSolution = rivalSolution;
                 if (bestSolution.getFitness() < benchmarkFitness) bestSolution = benchmarkSolution;
                 rivalSolution = Operators.mutation(benchmarkSolution, mutationChance);
+                temperature = startTemperature;
             }
             else if (acceptanceCriteria(rivalFitness, benchmarkFitness)){
                 benchmarkSolution = rivalSolution;
@@ -58,9 +59,9 @@ public class SimulatedAnnealing implements Optimizer{
             }
             else{
                 rivalSolution = rs.solve();
+                temperature *= coolingRate;
             }
 
-            temperature *= coolingRate;
         }
 
         return bestSolution;
@@ -100,7 +101,7 @@ public class SimulatedAnnealing implements Optimizer{
 
         HashMap<String, Number> params = params();
         StringBuilder sb = new StringBuilder();
-        sb.append("Simulated Annealing - ");
+        sb.append("My SA - ");
 
         for (Map.Entry<String, Number> entry :params.entrySet()){
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
