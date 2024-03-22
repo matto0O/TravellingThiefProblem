@@ -1,47 +1,66 @@
 import java.io.File;
 import java.io.FileWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class RandomSearch implements Optimizer{
-    private final int iterations;
+public class SimulatedAnnealing implements Optimizer{
+
+    // algorithm understanding based on the following source:
+    // https://medium.com/@francis.allanah/travelling-salesman-problem-using-simulated-annealing-f547a71ab3c6
+    // no code was copied from the source, only the algorithm understanding was based on it
+
+    private final double coolingRate;
+    private final double startTemperature;
+    private double temperature;
+    private final double terminationTemperature;
+    private final double mutationChance;
     private final ArrayList<Double> fitness;
 
-    public RandomSearch(int iterations){
-        this.iterations = iterations;
+    public SimulatedAnnealing(double coolingRate, double startTemperature,
+                              double terminationTemperature, double mutationChance){
+        this.coolingRate = coolingRate;
+        this.startTemperature = startTemperature;
+        this.temperature = startTemperature;
+        this.terminationTemperature = terminationTemperature;
+        this.mutationChance = mutationChance;
         fitness = new ArrayList<>();
+    }
+
+    private boolean acceptanceCriteria(double rivalFitness, double benchmarkFitness){
+        double exp = Math.exp((rivalFitness - benchmarkFitness) / temperature);
+        double random = Math.random();
+        return exp >= random;
     }
 
     @Override
     public Solution solve() {
-        Solution bestSolution = null;
+        RandomSearch rs = new RandomSearch(1);
+        Solution benchmarkSolution = rs.solve();
+        Solution rivalSolution = rs.solve();
+        Solution bestSolution = benchmarkSolution;
 
-        for (int i=0; i<iterations; i++){
-            Knapsack knapsack = new Knapsack(Problem.knapsackSize);
-            ArrayList<City> unvisitedCities = new ArrayList<>(Arrays.asList(Problem.cities));
+        while(temperature > terminationTemperature){
+            double benchmarkFitness = benchmarkSolution.getFitness();
+            double rivalFitness = rivalSolution.getFitness();
 
-            Solution solution = new Solution(knapsack, null);
+            fitness.add(rivalFitness);
 
-            while (!unvisitedCities.isEmpty()) {
-                City nextCity = unvisitedCities.get(Problem.random.nextInt(unvisitedCities.size()));
-                int maxWeight = knapsack.getCapacity() - knapsack.getWeight();
-                ArrayList<Item> items = nextCity.getItemsLighterThan(maxWeight);
-                int randomIndex = Problem.random.nextInt(items.size() + 1);
-                Item selectedItem = items.isEmpty() || randomIndex == items.size() ? null : items.get(randomIndex);
-
-                solution.appendSolution(nextCity, selectedItem);
-
-                unvisitedCities.remove(nextCity);
+            if(benchmarkFitness < rivalFitness){
+                benchmarkSolution = rivalSolution;
+                if (bestSolution.getFitness() < benchmarkFitness) bestSolution = benchmarkSolution;
+                rivalSolution = Operators.mutation(benchmarkSolution, mutationChance);
+            }
+            else if (acceptanceCriteria(rivalFitness, benchmarkFitness)){
+                benchmarkSolution = rivalSolution;
+                rivalSolution = Operators.mutation(rivalSolution, mutationChance);
+            }
+            else{
+                rivalSolution = rs.solve();
             }
 
-            solution.calculateFitness();
-            fitness.add(solution.getFitness());
-
-            if (bestSolution == null || bestSolution.getFitness() < solution.getFitness()){
-                bestSolution = solution;
-            }
-        }
-        if (bestSolution != null) {
-            bestSolution.calculateFitness();
+            temperature *= coolingRate;
         }
 
         return bestSolution;
@@ -49,9 +68,12 @@ public class RandomSearch implements Optimizer{
 
     @Override
     public HashMap<String, Number> params() {
-        HashMap<String, Number> result = new HashMap<>(1);
+        HashMap<String, Number> result = new HashMap<>(4);
 
-        result.put("i", iterations);
+        result.put("c", coolingRate);
+        result.put("sT", startTemperature);
+        result.put("tT", terminationTemperature);
+        result.put("m", mutationChance);
 
         return result;
     }
@@ -78,7 +100,7 @@ public class RandomSearch implements Optimizer{
 
         HashMap<String, Number> params = params();
         StringBuilder sb = new StringBuilder();
-        sb.append("Random Search - ");
+        sb.append("Simulated Annealing - ");
 
         for (Map.Entry<String, Number> entry :params.entrySet()){
             sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
