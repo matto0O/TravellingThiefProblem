@@ -16,6 +16,7 @@ public class MySA implements Optimizer{
     private double temperature;
     private final double terminationTemperature;
     private final double mutationChance;
+    private int repeats = 0;
     private final ArrayList<Double> fitness;
 
     public MySA(double coolingRate, double startTemperature,
@@ -36,16 +37,17 @@ public class MySA implements Optimizer{
 
     @Override
     public Solution solve() {
-        RandomSearch rs = new RandomSearch(1);
-        Solution benchmarkSolution = rs.solve();
-        Solution rivalSolution = rs.solve();
+        Solution benchmarkSolution = new RandomSearch(1).solve();
+        Solution rivalSolution = new RandomSearch(1).solve();
         Solution bestSolution = benchmarkSolution;
 
-        while(temperature > terminationTemperature){
+        while(temperature > terminationTemperature || repeats < 1000){
             double benchmarkFitness = benchmarkSolution.getFitness();
             double rivalFitness = rivalSolution.getFitness();
 
             fitness.add(rivalFitness);
+
+            if (benchmarkFitness == rivalFitness) repeats++;
 
             if(benchmarkFitness < rivalFitness){
                 benchmarkSolution = rivalSolution;
@@ -58,7 +60,7 @@ public class MySA implements Optimizer{
                 rivalSolution = Operators.mutation(rivalSolution, mutationChance);
             }
             else{
-                rivalSolution = rs.solve();
+                rivalSolution = new RandomSearch(1).solve();
                 temperature *= coolingRate;
             }
 

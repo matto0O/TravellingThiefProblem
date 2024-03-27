@@ -36,9 +36,8 @@ public class SimulatedAnnealing implements Optimizer{
 
     @Override
     public Solution solve() {
-        RandomSearch rs = new RandomSearch(1);
-        Solution benchmarkSolution = rs.solve();
-        Solution rivalSolution = rs.solve();
+        Solution benchmarkSolution = new RandomSearch(1).solve();
+        Solution rivalSolution = new RandomSearch(1).solve();
         Solution bestSolution = benchmarkSolution;
 
         while(temperature > terminationTemperature){
@@ -57,7 +56,7 @@ public class SimulatedAnnealing implements Optimizer{
                 rivalSolution = Operators.mutation(rivalSolution, mutationChance);
             }
             else{
-                rivalSolution = rs.solve();
+                rivalSolution = new RandomSearch(1).solve();
             }
 
             temperature *= coolingRate;

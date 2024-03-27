@@ -5,35 +5,35 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
 
-        String FILENAME = "results.csv";
+        String FILENAME = "results7.csv";
 
         Optimizer[] greedyStrategies = {
-                new GreedyAlgorithm(),
+//                new GreedyAlgorithm(),
                 new GreedyAlgorithmAllStarts(),
+//                new MySA(0.999, 10000, 0.001, 1),
+                new SimulatedAnnealing(0.999, 10000, 0.001, 1),
         };
 
         Optimizer[] otherStrategies = {
-            new EvolutionaryAlgorithm(100, 10, 100, 0.7, 0.05),
-            new EvolutionaryAlgorithm(1000, 10, 100, 0.7, 0.05),
-            new EvolutionaryAlgorithm(1000, 25, 100, 0.7, 0.05),
+//            new EvolutionaryAlgorithm(100, 10, 100, 0.7, 0.05),
+//            new EvolutionaryAlgorithm(1000, 10, 100, 0.7, 0.05),
+//            new EvolutionaryAlgorithm(1000, 25, 100, 0.7, 0.05),
             new EvolutionaryAlgorithm(1000, 25, 100, 0.7, 0.2),
             new EvolutionaryAlgorithm(1000, 25, 100, 0.5, 0.05),
-            new EvolutionaryAlgorithm(1000, 25, 1000, 0.7, 0.05),
-            new EvolutionaryAlgorithm(100, 10, 10000, 0.7, 0.1),
+//            new EvolutionaryAlgorithm(1000, 25, 1000, 0.7, 0.05),
+//            new EvolutionaryAlgorithm(100, 10, 10000, 0.7, 0.1),
 
-            new SimulatedAnnealing(0.99, 1000, 0.001, 1),
-            new SimulatedAnnealing(0.99, 1000, 0.1, 1),
-            new SimulatedAnnealing(0.999, 10000, 0.001, 1),
+//            new SimulatedAnnealing(0.99, 1000, 0.001, 1),
+//            new SimulatedAnnealing(0.99, 1000, 0.1, 1),
 
-            new MySA(0.99, 1000, 0.001, 1),
-            new MySA(0.99, 1000, 0.1, 1),
-            new MySA(0.999, 10000, 0.001, 1),
-
-            new RandomSearch(1000),
+//            new MySA(0.99, 1000, 0.001, 1),
+//            new MySA(0.99, 1000, 0.1, 1),
+//
+//            new RandomSearch(1000),
             new RandomSearch(10000),
         };
         Problem.setupInstance(
-                "src/problems/berlin52_n51_bounded-strongly-corr_01.ttp", null);
+                "src/problems/rd100_n99_bounded-strongly-corr_01.ttp", null);
 
         createComparisonFile(FILENAME);
 

@@ -5,10 +5,12 @@ import java.util.*;
 public class RandomSearch implements Optimizer{
     private final int iterations;
     private final ArrayList<Double> fitness;
+    private final Random random;
 
     public RandomSearch(int iterations){
         this.iterations = iterations;
         fitness = new ArrayList<>();
+        random = new Random();
     }
 
     @Override
@@ -22,10 +24,10 @@ public class RandomSearch implements Optimizer{
             Solution solution = new Solution(knapsack, null);
 
             while (!unvisitedCities.isEmpty()) {
-                City nextCity = unvisitedCities.get(Problem.random.nextInt(unvisitedCities.size()));
+                City nextCity = unvisitedCities.get(random.nextInt(unvisitedCities.size()));
                 int maxWeight = knapsack.getCapacity() - knapsack.getWeight();
                 ArrayList<Item> items = nextCity.getItemsLighterThan(maxWeight);
-                int randomIndex = Problem.random.nextInt(items.size() + 1);
+                int randomIndex = random.nextInt(items.size() + 1);
                 Item selectedItem = items.isEmpty() || randomIndex == items.size() ? null : items.get(randomIndex);
 
                 solution.appendSolution(nextCity, selectedItem);
