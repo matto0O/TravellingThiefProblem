@@ -36,8 +36,9 @@ public class SimulatedAnnealing implements Optimizer{
 
     @Override
     public Solution solve() {
-        Solution benchmarkSolution = new RandomSearch(1).solve();
-        Solution rivalSolution = new RandomSearch(1).solve();
+        RandomSearch instance = new RandomSearch(1);
+        Solution benchmarkSolution = instance.solve();
+        Solution rivalSolution = instance.solve();
         Solution bestSolution = benchmarkSolution;
 
         while(temperature > terminationTemperature){
@@ -56,7 +57,7 @@ public class SimulatedAnnealing implements Optimizer{
                 rivalSolution = Operators.mutation(rivalSolution, mutationChance);
             }
             else{
-                rivalSolution = new RandomSearch(1).solve();
+                rivalSolution = instance.solve();
             }
 
             temperature *= coolingRate;
@@ -94,91 +95,19 @@ public class SimulatedAnnealing implements Optimizer{
     }
 
     @Override
-    public boolean saveToFile(String fileName, int runNumber) {
-        String[] data = new String[6];
-
-        HashMap<String, Number> params = params();
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Simulated Annealing - ");
-
-        for (Map.Entry<String, Number> entry :params.entrySet()){
-            sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
+        sb.append("Simulated Annealing ");
+        for (Map.Entry<String, Number> entry : params().entrySet()){
+            sb.append(entry.getKey()).append("-").append(entry.getValue()).append(" ");
         }
 
-        data[0] = sb.toString().strip();
-
-        Number[] summary = runSummary(runNumber);
-        for (int i=0; i< summary.length; i++){
-            data[i+1] = String.valueOf(summary[i]);
-        }
-
-        File file = new File(fileName);
-        String line = String.join(",", data);
-
-        try (FileWriter fw = new FileWriter(file, true)){
-            fw.append(line);
-            fw.append('\n');
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String iterationDetails() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Min,Max,Mean,StD\n");
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
-        double sum = 0;
-        for (int i=0; i<fitness.size(); i++){
-            if(fitness.get(i) < min) min = fitness.get(i);
-            if(fitness.get(i) > max) max = fitness.get(i);
-            sum += fitness.get(i);
-
-            double mean = sum / (i+1);
-            double stD = Math.sqrt(fitness.subList(0,i).stream().mapToDouble(Double::doubleValue).map(
-                    x -> Math.pow(x - mean, 2)).sum() / (i+1));
-
-            sb.append(i).append(",").append(min).append(",").append(max).append(",")
-                    .append(mean).append(",").append(stD).append("\n");
-        }
         return sb.toString();
     }
 
     @Override
-    public String iterationPreview() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Fitness\n");
-        for (int i=0; i<fitness.size(); i++){
-            sb.append(i).append(",").append(fitness.get(i)).append("\n");
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public Double[][] iterationNumbersPreview() {
-        Double[][] result = new Double[fitness.size()][4];
-
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
-        double sum = 0;
-        for (int i=0; i<fitness.size(); i++){
-            if(fitness.get(i) < min) min = fitness.get(i);
-            if(fitness.get(i) > max) max = fitness.get(i);
-            sum += fitness.get(i);
-
-            double mean = sum / (i+1);
-            double stD = Math.sqrt(fitness.subList(0,i).stream().mapToDouble(Double::doubleValue).map(
-                    x -> Math.pow(x - mean, 2)).sum() / (i+1));
-
-            result[i][0] = min;
-            result[i][1] = max;
-            result[i][2] = mean;
-            result[i][3] = stD;
-        }
-
-        return result;
+    public void reset() {
+        temperature = startTemperature;
+        fitness.clear();
     }
 }

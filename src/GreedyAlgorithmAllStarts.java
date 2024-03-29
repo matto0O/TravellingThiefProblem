@@ -1,9 +1,6 @@
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 public class GreedyAlgorithmAllStarts implements Optimizer{
     private final ArrayList<Double> fitness;
@@ -51,6 +48,7 @@ public class GreedyAlgorithmAllStarts implements Optimizer{
             if(bestSolution == null || solution.getFitness() > bestSolution.getFitness())
                 bestSolution = solution;
         }
+        Problem.putRunSummary(runSummary(0));
         return bestSolution;
     }
 
@@ -77,62 +75,12 @@ public class GreedyAlgorithmAllStarts implements Optimizer{
     }
 
     @Override
-    public boolean saveToFile(String fileName, int runNumber) {
-        String[] data = new String[6];
-
-        data[0] = "Greedy Algorithm All Starts";
-
-        Number[] summary = runSummary(runNumber);
-        for (int i=0; i< summary.length; i++){
-            data[i+1] = String.valueOf(summary[i]);
-        }
-
-        File file = new File(fileName);
-        String line = String.join(",", data);
-
-        try (FileWriter fw = new FileWriter(file, true)){
-            fw.append(line);
-            fw.append('\n');
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public String toString() {
+        return "GreedyAlgorithmAllStarts";
     }
 
     @Override
-    public String iterationDetails() {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Min,Max,Mean,StD\n");
-        sb.append("0,").append(fitness.getFirst()).append(",").append(fitness.getFirst())
-                .append(",").append(fitness.getFirst()).append(",0\n");
-
-        return sb.toString();
-    }
-
-    @Override
-    public String iterationPreview() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Fitness\n");
-        for (int i=0; i<fitness.size(); i++){
-            sb.append(i).append(",").append(fitness.get(i)).append("\n");
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public Double[][] iterationNumbersPreview() {
-        Double[][] result = new Double[fitness.size()][4];
-        for (int i=0; i<fitness.size(); i++){
-            result[i][0] = Collections.min(fitness);
-            result[i][1] = Collections.max(fitness);
-            result[i][2] = fitness.stream().mapToDouble(Double::doubleValue).average().orElse(0);
-            ArrayList<Double> finalFitness = fitness;
-            result[i][3] = Math.sqrt(fitness.stream().mapToDouble(Double::doubleValue).map(
-                    x -> Math.pow(x - finalFitness.stream().mapToDouble(Double::doubleValue).average().orElse(0), 2)).sum()
-                    / fitness.size());
-        }
-        return result;
+    public void reset() {
+        fitness.clear();
     }
 }
