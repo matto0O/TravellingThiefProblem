@@ -8,11 +8,5 @@ public interface Optimizer {
 
     Number[] runSummary(int runNumber);
 
-    boolean saveToFile(String fileName, int runNumber);
-
-    String iterationDetails();
-
-    String iterationPreview();
-
-    Double[][] iterationNumbersPreview();
+    void reset();
 }

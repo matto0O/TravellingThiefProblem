@@ -1,5 +1,3 @@
-import java.io.File;
-import java.io.FileWriter;
 import java.util.*;
 
 public class EvolutionaryAlgorithm implements Optimizer{
@@ -69,6 +67,7 @@ public class EvolutionaryAlgorithm implements Optimizer{
             bestSolution = population.getLast().getFitness() > bestSolution.getFitness() ? population.getLast() : bestSolution;
         }
 
+        Problem.putRunSummary(runSummary(0));
         return bestSolution;
     }
 
@@ -78,38 +77,6 @@ public class EvolutionaryAlgorithm implements Optimizer{
             iterationFitness[i] = population.get(i).getFitness();
         }
         fitnessOverTime.add(iterationFitness);
-    }
-
-    @Override
-    public boolean saveToFile(String fileName, int runNumber) {
-        String[] data = new String[6];
-
-        HashMap<String, Number> params = params();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Evolutionary Algorithm - ");
-
-        for (Map.Entry<String, Number> entry :params.entrySet()){
-            sb.append(entry.getKey()).append("=").append(entry.getValue()).append(" ");
-        }
-
-        data[0] = sb.toString().strip();
-
-        Number[] summary = runSummary(runNumber);
-        for (int i=0; i< summary.length; i++){
-            data[i+1] = String.valueOf(summary[i]);
-        }
-
-        File file = new File(fileName);
-        String line = String.join(",", data);
-
-        try (FileWriter fw = new FileWriter(file, true)){
-            fw.append(line);
-            fw.append('\n');
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -147,66 +114,19 @@ public class EvolutionaryAlgorithm implements Optimizer{
     }
 
     @Override
-    public String iterationDetails(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i<populationSize; i++){
-            sb.append(i).append(",");
-        }
-        sb.append("\n");
-        for (Double[] iteration : fitnessOverTime){
-            for (Double fitness : iteration){
-                sb.append(fitness).append(",");
-            }
-            sb.append("\n");
+        sb.append("Evolutionary Algorithm ");
+        for (Map.Entry<String, Number> entry : params().entrySet()){
+            sb.append(entry.getKey()).append("-").append(entry.getValue()).append(" ");
         }
 
         return sb.toString();
     }
 
     @Override
-    public String iterationPreview(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Min,Max,Mean,StD\n");
-        for (int i=0; i<iterations; i++){
-
-            ArrayList<Double> fitness;
-            Double[] iteration = fitnessOverTime.get(i);
-            fitness = new ArrayList<>(Arrays.stream(iteration).toList());
-
-            sb.append(i).append(",");
-            sb.append(Collections.min(fitness)).append(",");
-            sb.append(Collections.max(fitness)).append(",");
-            sb.append(fitness.stream().mapToDouble(Double::doubleValue).average().orElse(0)).append(",");
-            ArrayList<Double> finalFitness = fitness;
-            sb.append(Math.sqrt(fitness.stream().mapToDouble(Double::doubleValue).map(
-                    x -> Math.pow(x - finalFitness.stream().mapToDouble(Double::doubleValue).average().orElse(0), 2)).sum()
-                    / fitness.size())).append("\n");
-
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public Double[][] iterationNumbersPreview() {
-
-        Double[][] result = new Double[iterations][4];
-
-        for (int i=0; i<iterations; i++){
-
-            ArrayList<Double> fitness;
-            Double[] iteration = fitnessOverTime.get(i);
-            fitness = new ArrayList<>(Arrays.stream(iteration).toList());
-
-            result[i][0] = Collections.min(fitness);
-            result[i][1] = Collections.max(fitness);
-            result[i][2] = fitness.stream().mapToDouble(Double::doubleValue).average().orElse(0);
-            ArrayList<Double> finalFitness = fitness;
-            result[i][3] = Math.sqrt(fitness.stream().mapToDouble(Double::doubleValue).map(
-                    x -> Math.pow(x - finalFitness.stream().mapToDouble(Double::doubleValue).average().orElse(0), 2)).sum()
-                    / fitness.size());
-
-        }
-
-        return result;
+    public void reset(){
+        population.clear();
+        fitnessOverTime.clear();
     }
 }

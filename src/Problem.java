@@ -1,9 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Problem {
     private static Problem instance = null;
@@ -16,16 +15,20 @@ public class Problem {
     private static Optimizer strategy;
     static Random random;
 
+    static private ArrayList<Number[]> runSummaries;
+
     private Problem(String fileName, Optimizer strategy) {
         Problem.fileName = fileName;
         Problem.strategy = strategy;
         random = new Random();
         loadProblem();
         calculateDistanceMatrix();
+        runSummaries = new ArrayList<>();
     }
 
     public static synchronized void changeStrategy(Optimizer newStrategy){
         strategy = newStrategy;
+//        runSummaries.clear();
     }
 
     public static synchronized Problem setupInstance(String fileName, Optimizer strategy) {
@@ -122,15 +125,11 @@ public class Problem {
         return strategy.solve();
     }
 
-    public static void saveToFile(String fileName, int runNumber){
-        strategy.saveToFile(fileName, runNumber);
+    public static void putRunSummary(Number[] runSummary){
+        runSummaries.add(runSummary);
     }
 
-    public static String iterationDetails(){
-        return strategy.iterationDetails();
-    }
-
-    public static String iterationPreview(){
-        return strategy.iterationPreview();
+    public static ArrayList<Number[]> getRunSummaries(){
+        return runSummaries;
     }
 }

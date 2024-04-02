@@ -42,6 +42,7 @@ public class GreedyAlgorithm implements Optimizer{
         }
         solution.calculateFitness();
         fitness.add(solution.getFitness());
+        Problem.putRunSummary(runSummary(0));
         return solution;
     }
 
@@ -68,54 +69,12 @@ public class GreedyAlgorithm implements Optimizer{
     }
 
     @Override
-    public boolean saveToFile(String fileName, int runNumber) {
-        String[] data = new String[6];
-
-        data[0] = "Greedy Algorithm";
-
-        Number[] summary = runSummary(runNumber);
-        for (int i=0; i< summary.length; i++){
-            data[i+1] = String.valueOf(summary[i]);
-        }
-
-        File file = new File(fileName);
-        String line = String.join(",", data);
-
-        try (FileWriter fw = new FileWriter(file, true)){
-            fw.append(line);
-            fw.append('\n');
-        } catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public String toString() {
+        return "GreedyAlgorithm";
     }
 
     @Override
-    public String iterationDetails() {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Min,Max,Mean,StD\n");
-        sb.append("0,").append(fitness.getFirst()).append(",").append(fitness.getFirst())
-                .append(",").append(fitness.getFirst()).append(",0\n");
-
-        return sb.toString();
-    }
-
-    @Override
-    public String iterationPreview() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Iteration,Fitness\n");
-        for (int i=0; i<fitness.size(); i++){
-            sb.append(i).append(",").append(fitness.get(i)).append("\n");
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public Double[][] iterationNumbersPreview() {
-        Double[][] result = new Double[1][1];
-        result[0][0] = fitness.getFirst();
-        return result;
+    public void reset() {
+        fitness.clear();
     }
 }
